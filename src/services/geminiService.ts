@@ -2,8 +2,8 @@
 import { toast } from 'sonner';
 
 const GEMINI_API_KEY = 'AIzaSyB-CXqCqmdcxv-WiaoNKa5mQpHw0n_A_aE';
-// Updated API URL to use the correct endpoint
-const GEMINI_API_URL = 'https://generativelanguage.googleapis.com/v1/models/gemini-1.5-flash:generateContent';
+// Updated API URL to use the Gemini 2.0 Flash-Lite model
+const GEMINI_API_URL = 'https://generativelanguage.googleapis.com/v1/models/gemini-2.0-flash-lite:generateContent';
 
 interface GeminiResponse {
   candidates?: Array<{
