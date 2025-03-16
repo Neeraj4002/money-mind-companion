@@ -30,7 +30,7 @@ export const generateFinancialAdvice = async (prompt: string): Promise<string> =
           {
             parts: [
               {
-                text: `You are a financial advisor assistant. Provide helpful, accurate, and concise information about personal finance, investments, and money management. 
+                text: `You are a financial advisor assistant. Provide helpful, accurate, and concise information about personal finance, investments, and money management. Format your responses using Markdown for better readability. Use **bold** for emphasis, headings for organization, and bullet points for lists.
                 
                 User query: ${prompt}`
               }
