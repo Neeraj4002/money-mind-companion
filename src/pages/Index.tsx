@@ -1,8 +1,9 @@
 
-import React, { useState } from 'react';
+import React, { useState, useRef, useEffect } from 'react';
 import ChatMessage from '@/components/ChatMessage';
 import ChatInput from '@/components/ChatInput';
 import { toast } from 'sonner';
+import { generateFinancialAdvice } from '@/services/geminiService';
 
 interface Message {
   text: string;
@@ -17,6 +18,15 @@ const Index = () => {
     }
   ]);
   const [isLoading, setIsLoading] = useState(false);
+  const messagesEndRef = useRef<HTMLDivElement>(null);
+
+  const scrollToBottom = () => {
+    messagesEndRef.current?.scrollIntoView({ behavior: 'smooth' });
+  };
+
+  useEffect(() => {
+    scrollToBottom();
+  }, [messages]);
 
   const handleSendMessage = async (message: string) => {
     // Add user message to chat
@@ -24,17 +34,18 @@ const Index = () => {
     setIsLoading(true);
 
     try {
-      // TODO: Replace with actual API call to Gemini
-      // For now, we'll simulate a response
-      setTimeout(() => {
-        setMessages(prev => [...prev, {
-          text: "I'm a placeholder response. Once connected to Gemini API, I'll provide real financial advice!",
-          isAi: true
-        }]);
-        setIsLoading(false);
-      }, 1000);
+      // Call Gemini API
+      const response = await generateFinancialAdvice(message);
+      
+      // Add AI response to chat
+      setMessages(prev => [...prev, {
+        text: response,
+        isAi: true
+      }]);
     } catch (error) {
+      console.error('Failed to get AI response:', error);
       toast.error("Failed to get response. Please try again.");
+    } finally {
       setIsLoading(false);
     }
   };
@@ -57,6 +68,7 @@ const Index = () => {
               <div className="w-2 h-2 bg-finance rounded-full animate-bounce [animation-delay:0.4s]" />
             </div>
           )}
+          <div ref={messagesEndRef} />
         </div>
       </div>
       <div className="border-t">
