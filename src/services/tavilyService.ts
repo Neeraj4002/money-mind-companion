@@ -1,9 +1,8 @@
 
 import { toast } from 'sonner';
 
-// This should be replaced with your actual Tavily API key
-// For demo purposes, using a placeholder
-const TAVILY_API_KEY = 'tavily-api-key-placeholder';
+// This is your actual Tavily API key
+const TAVILY_API_KEY = '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';
 
 interface TavilySearchResponse {
   results: Array<{
