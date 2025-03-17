@@ -54,11 +54,12 @@ const Index = () => {
 
   return (
     <div className="flex flex-col h-screen relative overflow-hidden">
-      {/* Background gradient bubbles */}
+      {/* Background gradient bubbles - updated with pink, blue, white */}
       <div className="absolute top-0 left-0 w-full h-full overflow-hidden -z-10">
-        <div className="absolute top-10 left-10 w-[300px] h-[300px] rounded-full bg-gradient-to-r from-pink-100 to-pink-200 opacity-60 blur-3xl"></div>
-        <div className="absolute bottom-40 right-20 w-[250px] h-[250px] rounded-full bg-gradient-to-r from-blue-100 to-purple-100 opacity-60 blur-3xl"></div>
-        <div className="absolute top-1/3 right-1/4 w-[200px] h-[200px] rounded-full bg-gradient-to-r from-purple-50 to-pink-100 opacity-50 blur-3xl"></div>
+        <div className="absolute top-10 left-10 w-[300px] h-[300px] rounded-full bg-gradient-to-r from-pink-200 to-pink-300 opacity-60 blur-3xl"></div>
+        <div className="absolute bottom-40 right-20 w-[350px] h-[350px] rounded-full bg-gradient-to-r from-blue-200 to-blue-300 opacity-60 blur-3xl"></div>
+        <div className="absolute top-1/3 right-1/4 w-[250px] h-[250px] rounded-full bg-gradient-to-r from-white to-blue-50 opacity-70 blur-3xl"></div>
+        <div className="absolute bottom-1/4 left-1/4 w-[200px] h-[200px] rounded-full bg-gradient-to-r from-pink-100 to-white opacity-50 blur-3xl"></div>
       </div>
       
       <header className="py-4 px-6 bg-white/80 backdrop-blur-sm border-b z-10 shadow-sm">
@@ -71,7 +72,7 @@ const Index = () => {
         </div>
       </header>
       
-      <ScrollArea className="flex-1 p-4 overflow-y-auto bg-gradient-to-b from-gray-50/80 to-white/90">
+      <ScrollArea className="flex-1 p-4 overflow-y-auto bg-transparent">
         <div className="max-w-3xl mx-auto space-y-4 px-2 py-4">
           {messages.map((message, index) => (
             <ChatMessage
