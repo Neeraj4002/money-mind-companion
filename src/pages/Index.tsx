@@ -30,14 +30,19 @@ const Index = () => {
     scrollToBottom();
   }, [messages]);
 
-  const handleSendMessage = async (message: string) => {
+  const handleSendMessage = async (message: string, useWebSearch: boolean = false) => {
     // Add user message to chat
     setMessages(prev => [...prev, { text: message, isAi: false }]);
     setIsLoading(true);
 
     try {
-      // Call Gemini API
-      const response = await generateFinancialAdvice(message);
+      // If web search is enabled, show a searching message
+      if (useWebSearch) {
+        toast.info("Searching the web for relevant information...");
+      }
+      
+      // Call Gemini API with web search option
+      const response = await generateFinancialAdvice(message, useWebSearch);
       
       // Add AI response to chat
       setMessages(prev => [...prev, {

@@ -2,20 +2,22 @@
 import React, { useState } from 'react';
 import { Button } from "@/components/ui/button";
 import { Textarea } from "@/components/ui/textarea";
-import { SendHorizonal, Sparkles } from "lucide-react";
+import { SendHorizonal, Search, Sparkles } from "lucide-react";
+import { Switch } from "@/components/ui/switch";
 
 interface ChatInputProps {
-  onSendMessage: (message: string) => void;
+  onSendMessage: (message: string, useWebSearch: boolean) => void;
   disabled?: boolean;
 }
 
 const ChatInput = ({ onSendMessage, disabled }: ChatInputProps) => {
   const [message, setMessage] = useState('');
+  const [useWebSearch, setUseWebSearch] = useState(false);
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
     if (message.trim()) {
-      onSendMessage(message);
+      onSendMessage(message, useWebSearch);
       setMessage('');
     }
   };
@@ -24,14 +26,32 @@ const ChatInput = ({ onSendMessage, disabled }: ChatInputProps) => {
     if (e.key === 'Enter' && !e.shiftKey) {
       e.preventDefault();
       if (message.trim()) {
-        onSendMessage(message);
+        onSendMessage(message, useWebSearch);
         setMessage('');
       }
     }
   };
 
   return (
-    <form onSubmit={handleSubmit} className="relative z-10 flex gap-3 p-4 border-t bg-white/90 backdrop-blur-sm shadow-md">
+    <form onSubmit={handleSubmit} className="relative z-10 p-4 border-t bg-white/90 backdrop-blur-sm shadow-md">
+      <div className="flex items-center justify-between mb-2">
+        <div className="flex items-center space-x-2">
+          <Switch
+            id="web-search"
+            checked={useWebSearch}
+            onCheckedChange={setUseWebSearch}
+            className="data-[state=checked]:bg-finance"
+          />
+          <label 
+            htmlFor="web-search" 
+            className="text-sm font-medium flex items-center cursor-pointer"
+          >
+            <Search className="h-4 w-4 mr-1 inline" />
+            Web Search
+          </label>
+        </div>
+      </div>
+      
       <div className="relative flex-1">
         <Textarea
           value={message}

@@ -1,5 +1,6 @@
 
 import { toast } from 'sonner';
+import { searchWeb } from './tavilyService';
 
 const GEMINI_API_KEY = 'AIzaSyB-CXqCqmdcxv-WiaoNKa5mQpHw0n_A_aE';
 // Updated API URL to use the Gemini 2.0 Flash-Lite model
@@ -18,8 +19,20 @@ interface GeminiResponse {
   };
 }
 
-export const generateFinancialAdvice = async (prompt: string): Promise<string> => {
+export const generateFinancialAdvice = async (prompt: string, useWebSearch: boolean = false): Promise<string> => {
   try {
+    let webSearchResults = "";
+    
+    // If web search is enabled, perform a web search first
+    if (useWebSearch && prompt.trim().length > 0) {
+      try {
+        webSearchResults = await searchWeb(prompt);
+      } catch (error) {
+        console.error("Web search failed:", error);
+        webSearchResults = "Web search failed, but I'll still try to answer based on my knowledge.";
+      }
+    }
+
     const response = await fetch(`${GEMINI_API_URL}?key=${GEMINI_API_KEY}`, {
       method: 'POST',
       headers: {
@@ -31,6 +44,8 @@ export const generateFinancialAdvice = async (prompt: string): Promise<string> =
             parts: [
               {
                 text: `You are a financial advisor assistant. Provide helpful, accurate, and concise information about personal finance, investments, and money management. Format your responses using Markdown for better readability. Use **bold** for emphasis, headings for organization, and bullet points for lists.
+                
+                ${webSearchResults ? `Recent web search results on this topic:\n${webSearchResults}\n\nPlease incorporate these results in your response when relevant.` : ''}
                 
                 User query: ${prompt}`
               }
