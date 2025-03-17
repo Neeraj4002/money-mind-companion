@@ -16,11 +16,15 @@ const ChatMessage = ({ message, isAi }: ChatMessageProps) => {
     )}>
       <div 
         className={cn(
-          "p-4 rounded-lg mb-4 max-w-[85%] animate-fade-in",
+          "p-4 rounded-lg mb-4 max-w-[85%] animate-fade-in shadow-md",
           isAi 
-            ? "bg-white border border-gray-200 shadow-sm rounded-tr-lg rounded-br-lg rounded-bl-lg" 
-            : "bg-finance text-white rounded-tl-lg rounded-tr-lg rounded-bl-lg"
+            ? "bg-white border border-gray-100" 
+            : "bg-gradient-to-br from-finance to-blue-400 text-white"
         )}
+        style={{
+          borderRadius: isAi ? "18px 18px 18px 0" : "18px 18px 0 18px",
+          boxShadow: isAi ? "0 2px 8px rgba(0, 0, 0, 0.05)" : "0 2px 8px rgba(0, 0, 0, 0.1)"
+        }}
       >
         {isAi ? (
           <ReactMarkdown

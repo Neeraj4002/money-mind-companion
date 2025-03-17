@@ -5,6 +5,7 @@ import ChatInput from '@/components/ChatInput';
 import { toast } from 'sonner';
 import { generateFinancialAdvice } from '@/services/geminiService';
 import { ScrollArea } from '@/components/ui/scroll-area';
+import { Sparkles } from 'lucide-react';
 
 interface Message {
   text: string;
@@ -52,13 +53,26 @@ const Index = () => {
   };
 
   return (
-    <div className="flex flex-col h-screen bg-gray-50">
-      <header className="py-4 px-6 bg-white border-b">
-        <h1 className="text-xl font-semibold text-center text-finance-dark">Financial Advisor AI</h1>
+    <div className="flex flex-col h-screen relative overflow-hidden">
+      {/* Background gradient bubbles */}
+      <div className="absolute top-0 left-0 w-full h-full overflow-hidden -z-10">
+        <div className="absolute top-10 left-10 w-[300px] h-[300px] rounded-full bg-gradient-to-r from-pink-100 to-pink-200 opacity-60 blur-3xl"></div>
+        <div className="absolute bottom-40 right-20 w-[250px] h-[250px] rounded-full bg-gradient-to-r from-blue-100 to-purple-100 opacity-60 blur-3xl"></div>
+        <div className="absolute top-1/3 right-1/4 w-[200px] h-[200px] rounded-full bg-gradient-to-r from-purple-50 to-pink-100 opacity-50 blur-3xl"></div>
+      </div>
+      
+      <header className="py-4 px-6 bg-white/80 backdrop-blur-sm border-b z-10 shadow-sm">
+        <div className="max-w-3xl mx-auto flex items-center justify-center">
+          <h1 className="text-xl font-semibold text-center text-finance-dark flex items-center gap-2">
+            <Sparkles className="h-5 w-5 text-finance" />
+            Financial Advisor AI
+            <Sparkles className="h-5 w-5 text-finance" />
+          </h1>
+        </div>
       </header>
       
-      <ScrollArea className="flex-1 p-4 overflow-y-auto">
-        <div className="max-w-3xl mx-auto space-y-4 px-2">
+      <ScrollArea className="flex-1 p-4 overflow-y-auto bg-gradient-to-b from-gray-50/80 to-white/90">
+        <div className="max-w-3xl mx-auto space-y-4 px-2 py-4">
           {messages.map((message, index) => (
             <ChatMessage
               key={index}
@@ -68,7 +82,8 @@ const Index = () => {
           ))}
           {isLoading && (
             <div className="flex justify-start">
-              <div className="bg-white p-4 rounded-tr-lg rounded-br-lg rounded-bl-lg border border-gray-200 shadow-sm">
+              <div className="bg-white p-4 rounded-tr-lg rounded-br-lg rounded-bl-lg border border-gray-100 shadow-sm"
+                style={{ borderRadius: "18px 18px 18px 0" }}>
                 <div className="flex gap-2 items-center">
                   <div className="w-2 h-2 bg-finance rounded-full animate-bounce" />
                   <div className="w-2 h-2 bg-finance rounded-full animate-bounce [animation-delay:0.2s]" />
@@ -81,8 +96,8 @@ const Index = () => {
         </div>
       </ScrollArea>
       
-      <div className="border-t">
-        <div className="max-w-3xl mx-auto">
+      <div className="border-t z-10">
+        <div className="max-w-3xl mx-auto w-full">
           <ChatInput
             onSendMessage={handleSendMessage}
             disabled={isLoading}
