@@ -1,18 +1,68 @@
+
 <!DOCTYPE html>
 <html lang="en">
-  <head>
-    <meta charset="UTF-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>money-mind-companion</title>
-    <meta name="description" content="Lovable Generated Project" />
-    <meta name="author" content="Lovable" />
-    <meta property="og:image" content="/og-image.png" />
-  </head>
-
-  <body>
-    <div id="root"></div>
-    <!-- IMPORTANT: DO NOT REMOVE THIS SCRIPT TAG OR THIS VERY COMMENT! -->
-    <script src="https://cdn.gpteng.co/gptengineer.js" type="module"></script>
-    <script type="module" src="/src/main.tsx"></script>
-  </body>
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Financial Advisor AI</title>
+  <link rel="stylesheet" href="styles.css">
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+</head>
+<body>
+  <div class="app-container">
+    <!-- Background gradient bubbles -->
+    <div class="background">
+      <div class="bubble bubble-1"></div>
+      <div class="bubble bubble-2"></div>
+      <div class="bubble bubble-3"></div>
+      <div class="bubble bubble-4"></div>
+    </div>
+    
+    <header>
+      <h1>
+        <span class="sparkle">✨</span>
+        Financial Advisor AI
+        <span class="sparkle">✨</span>
+      </h1>
+    </header>
+    
+    <div class="chat-container" id="chatContainer">
+      <!-- Initial message will be added here by JavaScript -->
+    </div>
+    
+    <div class="input-section">
+      <div class="search-toggle">
+        <label class="switch">
+          <input type="checkbox" id="webSearchToggle">
+          <span class="slider round"></span>
+        </label>
+        <label for="webSearchToggle" class="toggle-label">
+          <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="search-icon">
+            <circle cx="11" cy="11" r="8"></circle>
+            <line x1="21" y1="21" x2="16.65" y2="16.65"></line>
+          </svg>
+          Web Search
+        </label>
+      </div>
+      
+      <div class="input-container">
+        <textarea 
+          id="messageInput" 
+          placeholder="Ask about finance, investments, or money management..."
+          rows="1"
+        ></textarea>
+        <button id="sendButton" disabled>
+          <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+            <path d="m5 12 14-8-8 14v-8H5Z"></path>
+          </svg>
+        </button>
+      </div>
+    </div>
+    
+    <!-- Toast notifications container -->
+    <div id="toastContainer" class="toast-container"></div>
+  </div>
+  
+  <script src="script.js"></script>
+</body>
 </html>
