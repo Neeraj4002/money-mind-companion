@@ -1,67 +1,74 @@
 
-// API Keys
-const TAVILY_API_KEY = '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';
-const GEMINI_API_KEY = 'AIzaSyB-CXqCqmdcxv-WiaoNKa5mQpHw0n_A_aE';
-const GEMINI_API_URL = 'https://generativelanguage.googleapis.com/v1/models/gemini-2.0-flash-lite:generateContent';
-
 // DOM Elements
 const chatContainer = document.getElementById('chatContainer');
 const messageInput = document.getElementById('messageInput');
 const sendButton = document.getElementById('sendButton');
-const webSearchToggle = document.getElementById('webSearchToggle');
+const searchButton = document.getElementById('searchButton');
 const toastContainer = document.getElementById('toastContainer');
 
-// Initialize chat with welcome message
-function initChat() {
-  addMessage(
-    "Hi! I'm your AI financial advisor. Ask me anything about finance, investments, or money management.",
-    true
-  );
+// State
+let useWebSearch = false;
 
-  // Auto-resize textarea as user types
-  messageInput.addEventListener('input', function() {
-    this.style.height = 'auto';
-    this.style.height = (this.scrollHeight) + 'px';
-    
-    // Enable/disable button based on input
-    if (this.value.trim()) {
-      sendButton.removeAttribute('disabled');
-    } else {
-      sendButton.setAttribute('disabled', true);
-    }
+// API Keys - Replace with your actual keys in production
+const GEMINI_API_KEY = 'YOUR_GEMINI_API_KEY'; // Replace with your Gemini API key
+const TAVILY_API_KEY = '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'; // Your Tavily API key
+
+// Initialize the chat with a welcome message
+document.addEventListener('DOMContentLoaded', () => {
+  // Add initial AI message
+  addMessage("Hi! I'm your AI financial advisor. Ask me anything about finance, investments, or money management.", true);
+  
+  // Setup event listeners
+  messageInput.addEventListener('input', () => {
+    sendButton.disabled = messageInput.value.trim() === '';
+    adjustTextareaHeight();
   });
   
-  // Send message on button click
-  sendButton.addEventListener('click', handleSendMessage);
-  
-  // Send message on Enter key (but allow Shift+Enter for new line)
-  messageInput.addEventListener('keydown', function(e) {
+  messageInput.addEventListener('keydown', (e) => {
     if (e.key === 'Enter' && !e.shiftKey) {
       e.preventDefault();
-      if (this.value.trim()) {
-        handleSendMessage();
+      if (!sendButton.disabled) {
+        sendMessage();
       }
     }
   });
+  
+  sendButton.addEventListener('click', sendMessage);
+  
+  // Toggle web search functionality
+  searchButton.addEventListener('click', () => {
+    useWebSearch = !useWebSearch;
+    searchButton.classList.toggle('active', useWebSearch);
+    
+    if (useWebSearch) {
+      showToast('Web search enabled', 'info');
+    } else {
+      showToast('Web search disabled', 'info');
+    }
+  });
+});
+
+// Function to adjust textarea height
+function adjustTextareaHeight() {
+  messageInput.style.height = 'auto';
+  messageInput.style.height = (messageInput.scrollHeight) + 'px';
 }
 
-// Handle sending a message
-async function handleSendMessage() {
+// Function to send a message
+async function sendMessage() {
   const message = messageInput.value.trim();
-  const useWebSearch = webSearchToggle.checked;
-  
   if (!message) return;
   
   // Add user message to chat
   addMessage(message, false);
   
-  // Clear input and reset height
+  // Clear input and disable send button
   messageInput.value = '';
   messageInput.style.height = 'auto';
-  sendButton.setAttribute('disabled', true);
+  sendButton.disabled = true;
   
   // Add loading indicator
-  const loadingElement = addLoadingIndicator();
+  const loadingMessageElement = addLoadingMessage();
   
   try {
     // If web search is enabled, show a toast
@@ -70,230 +77,89 @@ async function handleSendMessage() {
     }
     
     // Get AI response
-    const response = await generateFinancialAdvice(message, useWebSearch);
+    const response = await getAIResponse(message, useWebSearch);
     
     // Remove loading indicator
-    loadingElement.remove();
+    loadingMessageElement.remove();
     
     // Add AI response to chat
     addMessage(response, true);
-    
-    // Scroll to bottom
-    scrollToBottom();
   } catch (error) {
-    console.error('Failed to get AI response:', error);
-    loadingElement.remove();
-    showToast('Failed to get response. Please try again.', 'error');
+    console.error('Error getting AI response:', error);
+    
+    // Remove loading indicator
+    loadingMessageElement.remove();
+    
+    // Add error message
+    showToast('Failed to get a response. Please try again.', 'error');
+    addMessage("I'm sorry, I couldn't process your request. Please try again later.", true);
   }
+  
+  // Scroll to the bottom of the chat
+  scrollToBottom();
 }
 
-// Add a message to the chat
+// Function to add a message to the chat
 function addMessage(text, isAi) {
-  const messageDiv = document.createElement('div');
-  messageDiv.className = `message ${isAi ? 'ai' : 'user'}`;
+  const messageElement = document.createElement('div');
+  messageElement.className = `message ${isAi ? 'ai' : 'user'}`;
   
   const messageContent = document.createElement('div');
   messageContent.className = 'message-content';
   
   if (isAi) {
-    // Convert markdown to HTML for AI messages
-    messageContent.innerHTML = `<div class="markdown">${renderMarkdown(text)}</div>`;
+    // For AI messages, use the Markdown renderer
+    const markdownContainer = document.createElement('div');
+    markdownContainer.className = 'markdown';
+    markdownContainer.innerHTML = renderMarkdown(text);
+    messageContent.appendChild(markdownContainer);
   } else {
+    // For user messages, just use the text
     messageContent.textContent = text;
   }
   
-  messageDiv.appendChild(messageContent);
-  chatContainer.appendChild(messageDiv);
+  messageElement.appendChild(messageContent);
+  chatContainer.appendChild(messageElement);
   
+  // Scroll to the bottom of the chat
   scrollToBottom();
+  
+  return messageElement;
 }
 
-// Add loading indicator
-function addLoadingIndicator() {
-  const loadingDiv = document.createElement('div');
-  loadingDiv.className = 'message ai';
+// Function to add a loading message
+function addLoadingMessage() {
+  const messageElement = document.createElement('div');
+  messageElement.className = 'message ai';
   
-  const loadingContent = document.createElement('div');
-  loadingContent.className = 'message-content';
+  const messageContent = document.createElement('div');
+  messageContent.className = 'message-content';
   
-  const dots = document.createElement('div');
-  dots.className = 'loading-dots';
+  const loadingDotsElement = document.createElement('div');
+  loadingDotsElement.className = 'loading-dots';
   
   for (let i = 0; i < 3; i++) {
     const dot = document.createElement('div');
     dot.className = 'dot';
-    dots.appendChild(dot);
+    loadingDotsElement.appendChild(dot);
   }
   
-  loadingContent.appendChild(dots);
-  loadingDiv.appendChild(loadingContent);
-  chatContainer.appendChild(loadingDiv);
+  messageContent.appendChild(loadingDotsElement);
+  messageElement.appendChild(messageContent);
+  chatContainer.appendChild(messageElement);
   
+  // Scroll to the bottom of the chat
   scrollToBottom();
-  return loadingDiv;
+  
+  return messageElement;
 }
 
-// Search the web using Tavily API
-async function searchWeb(query) {
-  try {
-    const response = await fetch('https://api.tavily.com/search', {
-      method: 'POST',
-      headers: {
-        'Content-Type': 'application/json',
-        'Authorization': `Bearer ${TAVILY_API_KEY}`
-      },
-      body: JSON.stringify({
-        query: query,
-        search_depth: "basic",
-        include_domains: [],
-        exclude_domains: [],
-        max_results: 3
-      })
-    });
-
-    if (!response.ok) {
-      const errorData = await response.json();
-      console.error('Tavily API Error:', errorData);
-      throw new Error(`API error: ${errorData.message || 'Unknown error'}`);
-    }
-
-    const data = await response.json();
-    
-    // Format search results to be more readable
-    let formattedResults = `### Web Search Results for: "${data.query}"\n\n`;
-    
-    data.results.forEach((result, index) => {
-      formattedResults += `**${index + 1}. [${result.title}](${result.url})**\n`;
-      formattedResults += `${result.content.substring(0, 150)}...\n\n`;
-    });
-
-    return formattedResults;
-  } catch (error) {
-    console.error('Error searching the web:', error);
-    showToast('Failed to search the web. Please try again.', 'error');
-    throw error;
-  }
+// Function to scroll to the bottom of the chat
+function scrollToBottom() {
+  chatContainer.scrollTop = chatContainer.scrollHeight;
 }
 
-// Generate financial advice using Gemini API
-async function generateFinancialAdvice(prompt, useWebSearch = false) {
-  try {
-    let webSearchResults = "";
-    
-    // If web search is enabled, perform a web search first
-    if (useWebSearch && prompt.trim().length > 0) {
-      try {
-        webSearchResults = await searchWeb(prompt);
-      } catch (error) {
-        console.error("Web search failed:", error);
-        webSearchResults = "Web search failed, but I'll still try to answer based on my knowledge.";
-      }
-    }
-
-    const response = await fetch(`${GEMINI_API_URL}?key=${GEMINI_API_KEY}`, {
-      method: 'POST',
-      headers: {
-        'Content-Type': 'application/json',
-      },
-      body: JSON.stringify({
-        contents: [
-          {
-            parts: [
-              {
-                text: `You are a financial advisor assistant. Provide helpful, accurate, and concise information about personal finance, investments, and money management. Format your responses using Markdown for better readability. Use **bold** for emphasis, headings for organization, and bullet points for lists.
-                
-                ${webSearchResults ? `Recent web search results on this topic:\n${webSearchResults}\n\nPlease incorporate these results in your response when relevant.` : ''}
-                
-                User query: ${prompt}`
-              }
-            ]
-          }
-        ],
-        generationConfig: {
-          temperature: 0.7,
-          maxOutputTokens: 800,
-        },
-        safetySettings: [
-          {
-            category: "HARM_CATEGORY_HARASSMENT",
-            threshold: "BLOCK_MEDIUM_AND_ABOVE"
-          },
-          {
-            category: "HARM_CATEGORY_HATE_SPEECH",
-            threshold: "BLOCK_MEDIUM_AND_ABOVE"
-          },
-          {
-            category: "HARM_CATEGORY_SEXUALLY_EXPLICIT",
-            threshold: "BLOCK_MEDIUM_AND_ABOVE"
-          },
-          {
-            category: "HARM_CATEGORY_DANGEROUS_CONTENT",
-            threshold: "BLOCK_MEDIUM_AND_ABOVE"
-          }
-        ]
-      }),
-    });
-
-    if (!response.ok) {
-      const errorData = await response.json();
-      console.error('API Error:', errorData);
-      throw new Error(`API error: ${errorData.error?.message || 'Unknown error'}`);
-    }
-
-    const data = await response.json();
-    
-    // Check if the response was blocked for safety reasons
-    if (data.promptFeedback?.blockReason) {
-      return `I cannot provide information on that topic. ${data.promptFeedback.blockReason}`;
-    }
-
-    // Extract the response text
-    if (data.candidates && data.candidates.length > 0) {
-      const text = data.candidates[0].content.parts[0].text;
-      return text;
-    } else {
-      throw new Error('No response generated');
-    }
-  } catch (error) {
-    console.error('Error generating financial advice:', error);
-    showToast('Failed to get response. Please try again.', 'error');
-    throw error;
-  }
-}
-
-// Simple markdown renderer
-function renderMarkdown(text) {
-  // Handle headings
-  text = text.replace(/### (.*)/g, '<h3>$1</h3>');
-  text = text.replace(/## (.*)/g, '<h2>$1</h2>');
-  text = text.replace(/# (.*)/g, '<h1>$1</h1>');
-  
-  // Handle bold
-  text = text.replace(/\*\*(.*?)\*\*/g, '<strong>$1</strong>');
-  
-  // Handle italic
-  text = text.replace(/\*(.*?)\*/g, '<em>$1</em>');
-  
-  // Handle links
-  text = text.replace(/\[(.*?)\]\((.*?)\)/g, '<a href="$2" target="_blank">$1</a>');
-  
-  // Handle unordered lists
-  text = text.replace(/^\s*[\-\*]\s+(.*?)$/gm, '<li>$1</li>');
-  text = text.replace(/<li>(.*?)<\/li>(\s*<li>)/g, '<li>$1</li><ul>$2');
-  text = text.replace(/(<\/li>\s*)(?!<li>|<ul>)/g, '$1</ul>');
-  
-  // Handle paragraphs - split by newline and wrap in <p> if not already a block element
-  const paragraphs = text.split('\n\n');
-  text = paragraphs.map(p => {
-    if (p.trim() === '') return '';
-    if (p.match(/^<(h[1-6]|ul|ol|li|blockquote)/)) return p;
-    return `<p>${p}</p>`;
-  }).join('');
-  
-  return text;
-}
-
-// Show a toast notification
+// Function to show a toast notification
 function showToast(message, type = 'info') {
   const toast = document.createElement('div');
   toast.className = `toast ${type}`;
@@ -301,7 +167,7 @@ function showToast(message, type = 'info') {
   
   toastContainer.appendChild(toast);
   
-  // Make the toast visible after a small delay (for animation)
+  // Make the toast visible
   setTimeout(() => {
     toast.classList.add('visible');
   }, 10);
@@ -310,15 +176,165 @@ function showToast(message, type = 'info') {
   setTimeout(() => {
     toast.classList.remove('visible');
     setTimeout(() => {
-      toast.remove();
+      toastContainer.removeChild(toast);
     }, 300);
   }, 3000);
 }
 
-// Scroll to the bottom of the chat
-function scrollToBottom() {
-  chatContainer.scrollTop = chatContainer.scrollHeight;
+// Function to get an AI response
+async function getAIResponse(message, useWebSearch) {
+  try {
+    let contextInfo = "";
+    
+    // If web search is enabled, use Tavily API to get relevant information
+    if (useWebSearch) {
+      const searchResults = await searchWeb(message);
+      contextInfo = `Web search results:\n${searchResults}\n\n`;
+    }
+    
+    // Call the Gemini API with the user's message and context
+    const response = await callGeminiAPI(contextInfo + message);
+    return response;
+  } catch (error) {
+    console.error('Error in getAIResponse:', error);
+    throw error;
+  }
 }
 
-// Initialize the chat when the page loads
-document.addEventListener('DOMContentLoaded', initChat);
+// Function to search the web using Tavily API
+async function searchWeb(query) {
+  try {
+    const response = await fetch('https://api.tavily.com/search', {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+        'Authorization': `${TAVILY_API_KEY}`
+      },
+      body: JSON.stringify({
+        query: query,
+        search_depth: "advanced",
+        include_domains: [],
+        exclude_domains: [],
+        max_results: 3
+      })
+    });
+    
+    if (!response.ok) {
+      throw new Error(`Tavily API responded with status: ${response.status}`);
+    }
+    
+    const data = await response.json();
+    
+    // Format the search results
+    let formattedResults = "";
+    if (data.results && data.results.length > 0) {
+      data.results.forEach((result, index) => {
+        formattedResults += `[${index + 1}] ${result.title}\n`;
+        formattedResults += `URL: ${result.url}\n`;
+        formattedResults += `Content: ${result.content}\n\n`;
+      });
+    } else {
+      formattedResults = "No relevant search results found.";
+    }
+    
+    return formattedResults;
+  } catch (error) {
+    console.error('Error searching web:', error);
+    return "Error searching the web. Proceeding without search results.";
+  }
+}
+
+// Function to call the Gemini API
+async function callGeminiAPI(message) {
+  try {
+    const response = await fetch('https://generativelanguage.googleapis.com/v1beta/models/gemini-pro:generateContent?key=' + GEMINI_API_KEY, {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json'
+      },
+      body: JSON.stringify({
+        contents: [
+          {
+            parts: [
+              {
+                text: `You are a helpful and knowledgeable financial advisor. Please provide accurate and useful financial advice based on the following inquiry. 
+                If you see web search results in the message, use that information to enhance your response and make it more accurate and up-to-date.
+                
+                User message: ${message}`
+              }
+            ]
+          }
+        ],
+        generationConfig: {
+          temperature: 0.7,
+          maxOutputTokens: 1024
+        }
+      })
+    });
+    
+    if (!response.ok) {
+      throw new Error(`Gemini API responded with status: ${response.status}`);
+    }
+    
+    const data = await response.json();
+    
+    // Extract the response text
+    if (data.candidates && data.candidates[0] && data.candidates[0].content && data.candidates[0].content.parts && data.candidates[0].content.parts[0]) {
+      return data.candidates[0].content.parts[0].text;
+    } else {
+      console.error('Unexpected Gemini API response structure:', data);
+      return "I'm sorry, I couldn't generate a response at this time.";
+    }
+  } catch (error) {
+    console.error('Error calling Gemini API:', error);
+    throw error;
+  }
+}
+
+// Simple Markdown renderer function (handles basic Markdown features)
+function renderMarkdown(text) {
+  // Handle bold
+  text = text.replace(/\*\*(.*?)\*\*/g, '<strong>$1</strong>');
+  
+  // Handle italic
+  text = text.replace(/\*(.*?)\*/g, '<em>$1</em>');
+  
+  // Handle headers
+  text = text.replace(/^### (.*?)$/gm, '<h3>$1</h3>');
+  text = text.replace(/^## (.*?)$/gm, '<h2>$1</h2>');
+  text = text.replace(/^# (.*?)$/gm, '<h1>$1</h1>');
+  
+  // Handle links
+  text = text.replace(/\[(.*?)\]\((.*?)\)/g, '<a href="$2" target="_blank" rel="noopener noreferrer">$1</a>');
+  
+  // Handle unordered lists
+  text = text.replace(/^\* (.*?)$/gm, '<li>$1</li>');
+  
+  // Wrap list items in ul tags
+  let inList = false;
+  const lines = text.split('\n');
+  for (let i = 0; i < lines.length; i++) {
+    if (lines[i].includes('<li>') && !inList) {
+      lines[i] = '<ul>' + lines[i];
+      inList = true;
+    } else if (!lines[i].includes('<li>') && inList) {
+      lines[i - 1] = lines[i - 1] + '</ul>';
+      inList = false;
+    }
+  }
+  if (inList) {
+    lines[lines.length - 1] = lines[lines.length - 1] + '</ul>';
+  }
+  text = lines.join('\n');
+  
+  // Handle paragraphs and line breaks
+  const paragraphs = text.split('\n\n');
+  text = paragraphs.map(p => {
+    if (p.trim() && !p.includes('<h') && !p.includes('<ul>')) {
+      return `<p>${p}</p>`;
+    }
+    return p;
+  }).join('\n');
+  
+  return text;
+}
