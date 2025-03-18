@@ -1,3 +1,4 @@
+
 /* Base styles and reset */
 * {
   box-sizing: border-box;
@@ -254,7 +255,7 @@ header h1 {
   font-weight: 500;
   border-radius: 999px;
   border: none;
-  background-color: #0c64c2;
+  background-color: #8E9196; /* Grey color when not active */
   color: white;
   cursor: pointer;
   transition: all 0.2s ease;
@@ -262,12 +263,12 @@ header h1 {
 }
 
 .search-button.active {
-  background-color: #2563eb;
+  background-color: #2563eb; /* Blue color when active */
   box-shadow: 0 0 0 1px rgba(37, 99, 235, 0.4), 0 1px 3px rgba(0, 0, 0, 0.1);
 }
 
 .search-button:hover {
-  background-color: #0a56a9;
+  opacity: 0.9;
 }
 
 .search-icon {

@@ -1,4 +1,3 @@
-
 // DOM Elements
 const chatContainer = document.getElementById('chatContainer');
 const messageInput = document.getElementById('messageInput');
