@@ -1,0 +1,50 @@
+
+/* Background gradient bubbles */
+.background {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  overflow: hidden;
+  z-index: -1;
+}
+
+.bubble {
+  position: absolute;
+  border-radius: 50%;
+  opacity: 0.6;
+  filter: blur(3rem);
+}
+
+.bubble-1 {
+  top: 10px;
+  left: 10px;
+  width: 300px;
+  height: 300px;
+  background: linear-gradient(to right, #f9a8d4, #f9a8bc);
+}
+
+.bubble-2 {
+  bottom: 40px;
+  right: 20px;
+  width: 350px;
+  height: 350px;
+  background: linear-gradient(to right, #93c5fd, #93c5e8);
+}
+
+.bubble-3 {
+  top: 33%;
+  right: 25%;
+  width: 250px;
+  height: 250px;
+  background: linear-gradient(to right, #ffffff, #eff6ff);
+}
+
+.bubble-4 {
+  bottom: 25%;
+  left: 25%;
+  width: 200px;
+  height: 200px;
+  background: linear-gradient(to right, #fbcfe8, #ffffff);
+}

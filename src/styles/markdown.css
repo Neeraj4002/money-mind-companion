@@ -1,0 +1,46 @@
+
+/* Markdown styling */
+.markdown {
+  font-size: 0.875rem;
+  line-height: 1.5;
+}
+
+.markdown p {
+  margin: 0.25rem 0;
+}
+
+.markdown strong {
+  font-weight: 700;
+  color: #1e40af;
+}
+
+.markdown h1, .markdown h2, .markdown h3 {
+  font-weight: 700;
+  margin: 0.5rem 0;
+}
+
+.markdown h1 {
+  font-size: 1.25rem;
+}
+
+.markdown h2 {
+  font-size: 1.125rem;
+}
+
+.markdown h3 {
+  font-size: 1rem;
+}
+
+.markdown ul, .markdown ol {
+  padding-left: 1.25rem;
+  margin: 0.5rem 0;
+}
+
+.markdown li {
+  margin: 0.125rem 0;
+}
+
+.markdown a {
+  color: #2563eb;
+  text-decoration: underline;
+}

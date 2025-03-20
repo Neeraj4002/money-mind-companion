@@ -1,0 +1,10 @@
+
+@media (max-width: 640px) {
+  .message {
+    max-width: 90%;
+  }
+  
+  .toast {
+    max-width: 300px;
+  }
+}
